@@ -17,6 +17,7 @@ namespace WIT
 {
     public partial class ToolWindow1Control : UserControl
     {
+
         // DB를 대신할 더미 데이터 저장소 (Key: 상대 경로, Value: 설명)
         private readonly Dictionary<string, string> _dummyData = new Dictionary<string, string>
         {
@@ -53,25 +54,29 @@ namespace WIT
             DbStatusTextBlock.Text = "DB 연결 시도 중...";
             DbStatusTextBlock.Foreground = (Brush)FindResource(VsBrushes.WindowTextKey);
 
-            string connString = "Host=192.168.45.67;Port=15432;Username=wit;Password=1234;Database=wit_db";
+            // 정적 인스턴스를 통해 옵션 페이지를 가져옵니다.
+            var optionPage = (OptionPageGrid)WITPackage.Instance.GetDialogPage(typeof(OptionPageGrid));
+            string connString = optionPage.ConnectionString;
+
+            if (string.IsNullOrWhiteSpace(connString))
+            {
+                DbStatusTextBlock.Text = "DB 연결 정보가 설정되지 않았습니다. [도구] > [옵션]에서 설정해주세요.";
+                DbStatusTextBlock.Foreground = Brushes.Red;
+                return;
+            }
 
             try
             {
-                // [수정] C# 7.3과 호환되는 전통적인 using 문으로 변경
                 using (var conn = new NpgsqlConnection(connString))
                 {
                     await conn.OpenAsync();
-
-                    // 연결 성공 시
                     DbStatusTextBlock.Text = $"DB 연결 성공! (PostgreSQL v{conn.PostgreSqlVersion})";
                     DbStatusTextBlock.Foreground = Brushes.Green;
-
                     await conn.CloseAsync();
                 }
             }
             catch (Exception ex)
             {
-                // 연결 실패 시
                 DbStatusTextBlock.Text = $"DB 연결 실패: {ex.Message}";
                 DbStatusTextBlock.Foreground = Brushes.Red;
             }

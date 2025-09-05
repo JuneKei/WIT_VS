@@ -31,7 +31,6 @@ _ReSharper*/
 *.DotSettings.user
 
 *.vsix
-*.vsixmanifest
 *.pkgdef
 *.pkgundef
 

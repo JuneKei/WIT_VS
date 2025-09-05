@@ -24,17 +24,21 @@ namespace WIT
     /// </para>
     /// </remarks>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
+    [ProvideOptionPage(typeof(OptionPageGrid), "WIT", "Database Settings", 0, 0, true)]
     [Guid(WITPackage.PackageGuidString)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideToolWindow(typeof(ToolWindow1), 
         Style = VsDockStyle.Tabbed, 
         Window = EnvDTE.Constants.vsWindowKindOutput)]
+
     public sealed class WITPackage : AsyncPackage
     {
         /// <summary>
         /// WITPackage GUID string.
         /// </summary>
         public const string PackageGuidString = "d2e8a5e9-0599-43da-aa5e-b12a0aaec137";
+
+        public static WITPackage Instance { get; private set; }
 
         #region Package Members
 
@@ -50,6 +54,7 @@ namespace WIT
             // When initialized asynchronously, the current thread may be a background thread at this point.
             // Do any initialization that requires the UI thread after switching to the UI thread.
             await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+            Instance = this;
             await ToolWindow1Command.InitializeAsync(this);
         }
 
